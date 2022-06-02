@@ -25,7 +25,6 @@ static void get_terminal_size(void) {
 #define RESETALL  "\x1b[0m"
 
 #	define HALFBLOCK "▀"		// Uses Unicode char U+2580
-
 // note: image has alpha pre-multied. Mimic GL_ONE + GL_ONE_MINUS_SRC_ALPHA
 #define BLEND \
 { \
@@ -43,13 +42,11 @@ static void print_image_double_res( int w, int h, unsigned char* data) {
 	char line[ linesz ];
 
 
-	for ( int y=0; y<h; y+=2 )
-	{
+	for ( int y=0; y<h; y+=2 ) {
 		const unsigned char* row0 = data + (y+0) * w * 4;
 		const unsigned char* row1 = data + (y+1) * w * 4;
 		line[0] = 0;
-		for ( int x=0; x<w; ++x )
-		{
+		for ( int x=0; x<w; ++x ) {
 			// foreground colour.
 			strncat( line, "\x1b[38;2;", sizeof(line) - strlen(line) - 1 );
 			char tripl[80];
@@ -84,7 +81,6 @@ static int process_image(const char* nm) {
 	if ( !data )
 		return -1;
 	//fprintf( stderr, "%s has dimension %dx%d w %d components.\n", nm, imw, imh, n );
-
 	float aspectratio = imw / (float) imh;
 	float pixels_per_char = imw / (float)termw;
 	if ( pixels_per_char < 1 ) pixels_per_char = 1;
@@ -97,9 +93,8 @@ static int process_image(const char* nm) {
 	const int outh = (int) roundf( outw / aspectratio );
 
 	unsigned char out[ outh ][ outw ][ 4 ];
-	for ( int y=0; y<outh; ++y )
-		for ( int x=0; x<outw; ++x )
-		{
+	for (int y=0; y<outh; ++y)
+		for ( int x=0; x<outw; ++x ) {
 			const int cx = (int) roundf( pixels_per_char * x );
 			const int cy = (int) roundf( pixels_per_char * y );
 			int acc[4] = {0,0,0,0};
@@ -112,9 +107,8 @@ static int process_image(const char* nm) {
 			sx = sx < 0 ? 0 : sx;
 			int ex = cx+kernelradius;
 			ex = ex >= imw ? imw-1 : ex;
-			for ( int yy = sy; yy <= ey; ++yy )
-				for ( int xx = sx; xx <= ex; ++xx )
-				{
+			for (int yy = sy; yy <= ey; ++yy)
+				for (int xx = sx; xx <= ex; ++xx) {
 					unsigned char* reader = data + ( yy * imw * 4 ) + xx * 4;
 					const int a = reader[3];
 					acc[ 0 ] += a * reader[0] / 255;
@@ -128,7 +122,6 @@ static int process_image(const char* nm) {
 			out[ y ][ x ][ 2 ] = acc[ 2 ] / numsamples;
 			out[ y ][ x ][ 3 ] = acc[ 3 ] / numsamples;
 		}
-
 	stbi_image_free( data );
 	data = 0;
 
